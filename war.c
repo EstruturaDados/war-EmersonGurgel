@@ -31,7 +31,7 @@
 
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
-int main() {
+
     // 1. Configuração Inicial (Setup):
     // - Define o locale para português.
     // - Inicializa a semente para geração de números aleatórios com base no tempo atual.
@@ -51,8 +51,7 @@ int main() {
     // 3. Limpeza:
     // - Ao final do jogo, libera a memória alocada para o mapa para evitar vazamentos de memória.
 
-    return 0;
-}
+    
 
 // --- Implementação das Funções ---
 
@@ -96,3 +95,130 @@ int main() {
 
 // limparBufferEntrada():
 // Função utilitária para limpar o buffer de entrada do teclado (stdin), evitando problemas com leituras consecutivas de scanf e getchar.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// --- Constantes Globais  ---
+// Redefinidas para o uso correto da estrutura
+#define NOME_MAX 30
+#define COR_MAX 10 
+#define MAX_TERRITORIOS 5 // Número máximo de territórios (tropas) que você quer cadastrar
+
+// --- Estrutura de Dados C ---
+ 
+struct Territorio {
+    char nome[NOME_MAX];
+    char cor[COR_MAX];
+    int quantidade_tropas; // Agora armazena o número inteiro de tropas
+};
+
+// Função utilitária para limpar o buffer de entrada
+void limparBufferEntrada() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+
+int main() {
+    // Inicialização CORRETA da variável de contagem
+    struct Territorio mapa[MAX_TERRITORIOS];
+    int total_territorios = 0; // Inicialize a contagem!
+    int opcao;
+
+    do {
+        printf("=================================================\n");
+        printf("============== GAME WAR (SIMPLIFICADO) ==============\n");
+        printf("0 - Para sair\n");
+        printf("1 - Para cadastrar um Território/Tropa\n");
+        printf("2 - Exibir Territórios/Tropas\n");
+        printf("=================================================\n");
+        printf("Escolha uma opção: ");
+        
+        // Use scanf para ler a opção e limpe o buffer logo em seguida
+        if (scanf("%d", &opcao) != 1) {
+            limparBufferEntrada(); // Limpa o buffer se a entrada não for um número
+            opcao = -1; // Força o 'default'
+        }
+        limparBufferEntrada();
+
+        switch(opcao) {
+            case 1:
+                printf("\n--- Cadastro de Território/Tropa ---\n");
+                
+                if(total_territorios < MAX_TERRITORIOS) {
+                    
+                    // 1. Lendo a Cor
+                    printf("Digite a cor da tropa (Ex: Azul): ");
+                    // fgets lê a string E a quebra de linha ('\n').
+                    fgets(mapa[total_territorios].cor, COR_MAX, stdin);
+                    // Opcional: Remover o '\n' lido pelo fgets
+                    mapa[total_territorios].cor[strcspn(mapa[total_territorios].cor, "\n")] = 0;
+
+                    // 2. Lendo o Nome
+                    printf("Digite o nome do teritório (Ex: Brasil): ");
+                    fgets(mapa[total_territorios].nome, NOME_MAX, stdin);
+                    // Opcional: Remover o '\n' lido pelo fgets
+                    mapa[total_territorios].nome[strcspn(mapa[total_territorios].nome, "\n")] = 0;
+
+                    // 3. Lendo a Quantidade de Tropas (Inteiro)
+                    // Para ler o inteiro de forma segura, vamos ler a string e converter
+                    char temp_str[10]; // Buffer temporário para a leitura do número
+                    printf("Digite a quantidade de tropas (Número): ");
+                    
+                    if (fgets(temp_str, 10, stdin) != NULL) {
+                        // Converte a string lida (temp_str) para um inteiro
+                        if (sscanf(temp_str, "%d", &mapa[total_territorios].quantidade_tropas) == 1) {
+                            total_territorios++;
+                            printf("\n** Território/Tropa registrado com sucesso! **\n");
+                        } else {
+                            printf("\n** ERRO: Quantidade de tropas inválida. Tente novamente. **\n");
+                        }
+                    } else {
+                        printf("\n** ERRO na leitura da quantidade de tropas. **\n");
+                    }
+                    
+                } else {
+                    printf("\n** Número de territórios máximo (%d) atingido! **\n", MAX_TERRITORIOS);
+                }
+                break; // Adicionado 'break'
+
+            case 2: 
+                printf("\n--- Lista de Territórios/Tropas ---\n");
+
+                if(total_territorios == 0) {
+                    printf("Nenhum território/tropa foi cadastrado.\n");
+                } else {
+                    for(int i = 0; i < total_territorios; i++) {
+                        printf("=================================================\n"); 
+                        printf("Território %d\n", i + 1);
+                        printf("Nome: %s\n", mapa[i].nome);
+                        printf("Cor: %s\n", mapa[i].cor);
+                        // %d para exibir o inteiro
+                        printf("Tropas: %d\n", mapa[i].quantidade_tropas); 
+                    }
+                    printf("=================================================\n");
+                }
+
+                printf("\nPressione Enter para continuar\n");
+                getchar();
+                break;
+
+            case 0:
+                printf("SAINDO...\n");
+                break;
+
+            default:
+                printf("OPÇÃO INVÁLIDA.\n");
+                printf("TENTE NOVAMENTE.\n");
+                // getchar() já foi chamado dentro do case 2. 
+                // Para o default, vamos manter o getchar para a pausa
+                printf("\nPressione Enter para continuar\n");
+                getchar(); 
+                break;
+        } 
+    } while (opcao != 0);
+
+    return 0;
+}
